@@ -1,2 +1,3 @@
 ﻿  Dungeon.cpp
+c:\users\donis\documents\visual studio 2015\projects\dungeon\dungeon\dungeon.cpp(30): warning C4018: '<': signed/unsigned mismatch
   Dungeon.vcxproj -> C:\Users\Donis\Documents\Visual Studio 2015\Projects\Dungeon\Debug\Dungeon.exe
