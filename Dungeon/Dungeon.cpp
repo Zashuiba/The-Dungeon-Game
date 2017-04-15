@@ -9,14 +9,44 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
+#include <vector>
 
-#define WIDTH  20
-#define HEIGHT 20
-#define TRAPS 2
-#define ENEMIES 3
+
+
 using namespace std;
 
-char dun[HEIGHT][WIDTH];
+
+int WIDTH;
+int HEIGHT;
+int TRAPS;
+int ENEMIES;
+
+
+std::vector< std::vector<char> > dun;
+
+void init_array()
+{
+	dun.resize(HEIGHT);
+	for (size_t i = 0; i < HEIGHT; ++i)
+		dun[i].resize(WIDTH);
+}
+
+void set_vals() {
+	cout << "Introduce a value for the width" << '\n';
+	cin >> WIDTH;
+	cout << "Introduce a value for the heigth" << '\n';
+	cin >> HEIGHT;
+	cout << "Introduce a value for the number of enemies" << '\n';
+	cin >> ENEMIES;
+	cout << "Introduce a vale for the number of traps" << '\n';
+	cin >> TRAPS;
+
+	vector< vector<int> > dun(HEIGHT, vector<int>(WIDTH));
+
+}
+using namespace std;
+
+
 
 void fresh()
 {
@@ -35,11 +65,35 @@ void fresh()
 
 void f5()
 {
+
+	HANDLE  hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, 8);
 	cout << '\n' << '\n' << '\n';
-	cout << '\t' << '\t' << "|THE DUNGEON GAME|" << '\n' << '\n';
-	cout << '\t' << '\t' << "Move with W A S D " << '\n';
-	cout << '\t' << '\t' << "Find the treasure X" << '\n';
-	cout << '\t' << '\t' << "Don't get hit by enemies E or traps T" << '\n' << '\n' << '\n';
+	cout << '\t' << '\t';
+	SetConsoleTextAttribute(hConsole, 142);
+	cout << "|THE DUNGEON GAME|" ;
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << '\n' << '\n';
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << '\t' << '\t' << "Move the player ";
+	SetConsoleTextAttribute(hConsole, 2);
+	cout << "P ";
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << "with W A S D " << '\n';
+	cout << '\t' << '\t' << "Find the treasure ";
+	SetConsoleTextAttribute(hConsole, 142);
+	cout << "X" << '\n';
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << '\t' << '\t' << "Don't get hit by enemies ";
+	SetConsoleTextAttribute(hConsole, 4);
+	cout << "E ";
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << "or traps ";
+	SetConsoleTextAttribute(hConsole, 240);
+	cout << "T";
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << '\n' << '\n' << '\n';
 
 
 
@@ -48,14 +102,54 @@ void f5()
 		cout << '\t' << '\t';
 		for (int j(0); j < WIDTH; j++)
 		{
-			cout << dun[i][j];
-			if (j == WIDTH- 1)
+			switch (dun[i][j])
+			{
+			case 'P':
+			{
+				SetConsoleTextAttribute(hConsole, 2);
+				cout << dun[i][j];
+				break;
+			}
+			case 'T':
+			{
+				SetConsoleTextAttribute(hConsole, 240);
+				cout << dun[i][j];
+				break;
+			}
+			case 'X':
+			{
+				SetConsoleTextAttribute(hConsole, 142);
+				cout << dun[i][j];
+				break;
+			}
+
+			case 'E':
+			{
+				SetConsoleTextAttribute(hConsole, 4);
+				cout << dun[i][j];
+				break;
+			}
+
+			default:
+			{
+				SetConsoleTextAttribute(hConsole, 8);
+				cout << dun[i][j];
+				break;
+			}
+			}
+			if (j == WIDTH - 1)
+			{
+				SetConsoleTextAttribute(hConsole, 8);
 				cout << '\n';
+			}
 		}
 
 	}
-	
+
 }
+
+
+
 
 
 int rng(int min, int max)
@@ -247,8 +341,8 @@ retry_2:
 
 void move_IA()
 {
-
-	int P_pos[ENEMIES][2];
+	
+	vector< vector<int> > P_pos(ENEMIES, vector<int>(2));
 
 
 	for (int f(0); f < ENEMIES; f++)
@@ -496,7 +590,8 @@ int main()
 	GetWindowRect(console, &r); //stores the console's current dimensions
 
 	MoveWindow(console, r.left, r.top, 600, 600, TRUE);
-
+	set_vals();
+	init_array();
 	fresh();
 	gen1();
 	do
