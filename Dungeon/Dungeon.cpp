@@ -10,6 +10,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <vector>
+#include <math.h>
 
 
 
@@ -20,6 +21,9 @@ int WIDTH;
 int HEIGHT;
 int TRAPS;
 int ENEMIES;
+int mode(0);
+int lvl(0);
+bool has_won(0);
 
 
 std::vector< std::vector<char> > dun;
@@ -31,22 +35,71 @@ void init_array()
 		dun[i].resize(WIDTH);
 }
 
-void set_vals() {
-	cout << "Introduce a value for the width" << '\n';
-	cin >> WIDTH;
-	cout << "Introduce a value for the heigth" << '\n';
+void input_vals() {
+	cout << "Set the Height: " << '\n';
 	cin >> HEIGHT;
-	cout << "Introduce a value for the number of enemies" << '\n';
+	cout << "Set the Width: " << '\n';
+	cin >> WIDTH;
+	cout << "Set the number of enemies: " << '\n';
 	cin >> ENEMIES;
-	cout << "Introduce a vale for the number of traps" << '\n';
+	cout << "Set the number of traps: " << '\n';
 	cin >> TRAPS;
 
-	vector< vector<int> > dun(HEIGHT, vector<int>(WIDTH));
+}
+
+void set_vals(int lvl)
+{
+	WIDTH = HEIGHT = 10 + lvl;
+	//ENEMIES = ceil(10 + lvl * 1.2);
+	ENEMIES = 2;
+	TRAPS = ceil(ENEMIES *2.7);
 
 }
-using namespace std;
+
+void ClearScreen()
+{
+	system("CLS");
+}
 
 
+int select_mode()
+{
+	HANDLE  hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	cout << "Bienvenido a The Dungeon Game, escoja entre los dos modos de juego: " << '\n';
+	SetConsoleTextAttribute(hConsole, 14);
+	cout << "Modo Reto (2): ";
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << "La dificultad va subiendo progresivamente, la mazmorra se" << '\n';
+	cout << " agranda y aumenta el numero de enemigos y trampas" << '\n';
+	cout << "(solo para jugadores expertos)" << '\n';
+	SetConsoleTextAttribute(hConsole, 14);
+	cout << "Modo Normal (1): ";
+	SetConsoleTextAttribute(hConsole, 8);
+	cout << "Establezca el numero de trampas, enemigos y tamano" << '\n';
+	cout << " al comienzo de la partida" << '\n' << '\n' << '\n';
+	cout << "Escriba 0 o 1 para escoger el modo de juego" << '\n';
+
+set_mode_interior:
+
+	int x = _getch();
+	int y(0);
+	switch (x)
+	{
+	case '2':
+		y = 2;
+		return y;
+		break;
+	case '1':
+		y = 1;
+		return y;
+		break;
+	default:
+		cout << "null" << '\n';
+		goto set_mode_interior;
+		break;
+	}
+}
 
 void fresh()
 {
@@ -65,10 +118,11 @@ void fresh()
 
 void f5()
 {
-
+	ClearScreen();
 	HANDLE  hConsole;
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hConsole, 8);
+	cout << "Level: " << lvl;
 	cout << '\n' << '\n' << '\n';
 	cout << '\t' << '\t';
 	SetConsoleTextAttribute(hConsole, 142);
@@ -148,10 +202,6 @@ void f5()
 
 }
 
-
-
-
-
 int rng(int min, int max)
 {
 	std::random_device seeder;
@@ -161,7 +211,7 @@ int rng(int min, int max)
 	return compGuess;
 }
 
-void gen1()
+void gen()
 {
 	dun[rng(0, HEIGHT-1)][rng(0, HEIGHT-1)] = 'P';
 
@@ -221,7 +271,6 @@ int count(char c)
 	return x;
 }
 
-
 bool is_char(char c)
 {
 	int x(0);
@@ -260,7 +309,6 @@ w = 2 ----> sigue el juego
 	return  2;
 
 }
-
 
 void move_player()
 {
@@ -333,9 +381,22 @@ retry_2:
 	}
 	else if (x == 0)
 	{
-		cout << '\n' << '\n' << "Has encontrado el tesoro!!" << '\n';
-		std::system("PAUSE");
-		exit(0);
+		switch (mode)
+		{
+		case 1:
+		{
+			cout << '\n' << '\n' << "Has encontrado el tesoro!!" << '\n';
+			std::system("PAUSE");
+			exit(0); 
+			break;
+		}
+		case 2:
+		{
+			has_won = 1;
+			break;
+		}
+		
+		}
 	}
 }
 
@@ -590,23 +651,60 @@ int main()
 	GetWindowRect(console, &r); //stores the console's current dimensions
 
 	MoveWindow(console, r.left, r.top, 600, 600, TRUE);
-	set_vals();
-	init_array();
-	fresh();
-	gen1();
-	do
+	mode = select_mode();
+
+	switch (mode)
 	{
-		f5();
-		move_player();
-		move_IA();
-		if (win_condition() == 0)
+	case 1:
+	{
+		input_vals();
+		init_array();
+		fresh();
+		gen();
+		do
 		{
-			cout << '\n' << '\n' << "Has perdido porque te ha comido un bicho!" << '\n';
-			system("PAUSE");
-			exit(0);
+			f5();
+			move_player();
+			move_IA();
+			if (win_condition() == 0)
+			{
+				cout << '\n' << '\n' << "Has perdido porque te ha comido un bicho!" << '\n';
+				system("PAUSE");
+				exit(0);
+			}
+					
+		} while (1);
+		return 0;
+	}
+
+	case 2:
+	{
+		while (1)
+		{
+			has_won = 0;
+			set_vals(lvl);
+			init_array();
+			fresh();
+			gen();
+			do //Bucle básico que encierra al juego
+			{
+				f5();
+				move_player();
+				move_IA();
+				if (win_condition() == 0)
+				{
+					cout << '\n' << '\n' << "Has perdido porque te ha comido un bicho!" << '\n';
+					system("PAUSE");
+					exit(0);
+				}
+
+			} while (!has_won);
+			lvl++;
 		}
+			return 0;
 		
-		system("CLS");
-	} while (1);
-    return 0;
+	}
+	
+	}
+	
 }
